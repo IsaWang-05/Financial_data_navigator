@@ -1,0 +1,13 @@
+/* Ensure the modal is large enough */
+#dataModal .modal-dialog {
+    max-width: 90%;
+}
+#dataModal .modal-body {
+    overflow-x: auto; /* Allows table to be scrollable horizontally */
+}
+
+/* Ensure table is not larger than the modal */
+.table-responsive {
+    max-height: 400px;
+    overflow-y: auto;
+}
