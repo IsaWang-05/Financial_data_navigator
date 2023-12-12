@@ -5,8 +5,9 @@ class ExcelReader:
     def __init__(self, filename):
         self.filename = filename
 
-    def read(self, Issuer=None, Symbol=None, Deal_team_contact=None):
+    def read(self, Issuer=None, Symbol=None, Deal_team_contact=None, filter_date=None):
         data = pd.read_excel(self.filename, engine='openpyxl')
+        data['Date'] = pd.to_datetime(data['Date'])
         
         if Issuer:
             data = data[data['Issuer'].str.contains(Issuer, case=False, na=False)]
@@ -14,6 +15,9 @@ class ExcelReader:
             data = data[data['Symbol'].str.contains(Symbol, case=False, na=False)]
         if Deal_team_contact:
             data = data[data['Deal_team_contact'].str.contains(Deal_team_contact, case=False, na=False)]
+        if filter_date:
+            filter_date = pd.to_datetime(filter_date)
+            data = data[data['Date'] <= pd.to_datetime(filter_date)]
 
         # show only the newest record for each symbol
         data = data.sort_values('Date', ascending=False).drop_duplicates('Symbol')
@@ -21,9 +25,13 @@ class ExcelReader:
         data['Details'] = data.apply(lambda row: f"<a href='#' class='view-details' data-id='{row.name}'>View Details</a>", axis=1)
         return data.to_html(index=False, escape=False)
 
-    def read_hist(self, Symbol):
+    def read_hist(self, Symbol, filter_date=None):
         data = pd.read_excel(self.filename, engine='openpyxl')
         data = data[data['Symbol'] == Symbol]
+        data['Date'] = pd.to_datetime(data['Date'])
+        if filter_date:
+            filter_date = pd.to_datetime(filter_date)
+            data = data[data['Date'] <= pd.to_datetime(filter_date)]
 
         # sort all records by date (earliest to latest)
         data = data.sort_values('Date', ascending=True)
@@ -41,12 +49,12 @@ class ExcelNavigatorApp:
             Issuer = request.args.get('Issuer')
             Symbol = request.args.get('Symbol')
             Deal_team_contact = request.args.get('Deal_team_contact')
+            filter_date = request.args.get('filter_date')
 
-            table_html = self.excel_reader.read(Issuer, Symbol, Deal_team_contact)
+            table_html = self.excel_reader.read(Issuer, Symbol, Deal_team_contact, filter_date)
             return render_template('index.html', table_html=table_html)
 
         @self.app.route('/details', methods=['POST'])
-               
         def get_details_by_symbol():
             data = request.get_json()
             row_id = data['row_id']
