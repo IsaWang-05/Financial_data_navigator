@@ -7,6 +7,7 @@
     <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
     <script src="/static/scripts.js"></script>
     <script>
         $(document).ready(function(){
@@ -66,7 +67,8 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <!--full data details will be loaded here by the JavaScript-->
+                    <!-- graph will be rendered here -->
+                    <div id="graph-container"></div>
                 </div>
             </div>
         </div>
