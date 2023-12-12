@@ -2,11 +2,16 @@ $(document).on('click', '.view-details', function(e){
     e.preventDefault();
     var rowId = $(this).data('id');
 
-    console.log("Click event triggered for .view-details with rowId: ", rowId);
+    // Hide the modal first and clear previous content
+    $('#dataModal').modal('hide');
+    $('#dataModal .modal-body').empty();
 
+    console.log("Click event triggered for .view-details with rowId: ", rowId);
     console.log("Starting AJAX request to build modal content.");
 
+    // AJAX request with cache disabled
     $.ajax({
+        cache: false,
         url: '/details',
         method: 'POST',
         contentType: 'application/json',
@@ -16,6 +21,7 @@ $(document).on('click', '.view-details', function(e){
 
             // Parse the HTML response
             var $html = $(response);
+
             console.log("Parsing HTML response");
 
             // Extracting the first row for topRow and secondRow
@@ -29,10 +35,6 @@ $(document).on('click', '.view-details', function(e){
 
             // Initializing the table with headers
             var dataTable = '<table class="table table-bordered"><thead><tr>' +
-                            '<th>Date</th>' +
-                            '<th>Price</th>' +
-                            '<th>Input</th>' +
-                            '<th>Value</th>' +
                             '</tr></thead><tbody>';
 
             // Arrays to hold each column's data
@@ -82,15 +84,13 @@ $(document).on('click', '.view-details', function(e){
             var modalContent = topRow + secondRow + dataTable;
             console.log("Final modal content built: ", modalContent);
 
-            // Insert the modal content
-            console.log("Inserting content into modal");
-            $('#dataModal .modal-body').html(modalContent); 
-            console.log("Content inserted into modal body");
-
-            // Show the modal
-            console.log("Displaying modal");
-            $('#dataModal').modal('show');
-            console.log('Modal displayed');
+            // Wait for the modal to be hidden before updating the content
+            $('#dataModal').on('hidden.bs.modal', function () {
+                console.log("Modal is now hidden. Updating content.");
+                $('#dataModal .modal-body').html(modalContent);
+                $(this).off('hidden.bs.modal'); // Remove the event listener
+                $(this).modal('show'); // Show the modal after the content update
+            }).modal('hide'); // Hide the modal to trigger the hidden event
         },
         error: function(error){
             console.log("Error in AJAX request: ", error);
