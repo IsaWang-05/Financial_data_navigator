@@ -2,11 +2,12 @@ $(document).on('click', '.view-details', function(e){
     e.preventDefault();
     var rowId = $(this).data('id');
 
-    // Hide the modal first and clear previous content
-    $('#dataModal').modal('hide');
+    // Clear the content and hide the modal
     $('#dataModal .modal-body').empty();
+    $('#dataModal').modal('hide');
 
     console.log("Click event triggered for .view-details with rowId: ", rowId);
+
     console.log("Starting AJAX request to build modal content.");
 
     // AJAX request with cache disabled
@@ -84,13 +85,11 @@ $(document).on('click', '.view-details', function(e){
             var modalContent = topRow + secondRow + dataTable;
             console.log("Final modal content built: ", modalContent);
 
-            // Wait for the modal to be hidden before updating the content
-            $('#dataModal').on('hidden.bs.modal', function () {
-                console.log("Modal is now hidden. Updating content.");
+            
+            setTimeout(function() {
                 $('#dataModal .modal-body').html(modalContent);
-                $(this).off('hidden.bs.modal'); // Remove the event listener
-                $(this).modal('show'); // Show the modal after the content update
-            }).modal('hide'); // Hide the modal to trigger the hidden event
+                $('#dataModal').modal('show');
+            }, 1);
         },
         error: function(error){
             console.log("Error in AJAX request: ", error);
