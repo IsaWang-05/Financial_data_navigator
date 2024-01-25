@@ -1,1 +1,0 @@
-# Financial_data_navigator
