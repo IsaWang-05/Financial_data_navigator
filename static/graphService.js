@@ -6,9 +6,9 @@ const GraphService = (function() {
             // Clear the container before appending a new SVG
             d3.select("#graph-container").selectAll("*").remove();
 
-            var margin = {top: 40, right: 60, bottom: 30, left: 60}, 
-                width = 760 - margin.left - margin.right,
-                height = 400 - margin.top - margin.bottom;
+            var margin = {top: 40, right: 80, bottom: 30, left: 80},
+                width = 960 - margin.left - margin.right,
+                height = 500 - margin.top - margin.bottom;
 
             var svg = d3.select("#graph-container")
               .append("svg")
@@ -77,6 +77,44 @@ const GraphService = (function() {
                 .attr("stroke", "red") 
                 .attr("stroke-width", 1.5)
                 .attr("d", unobservableValueLine);
+
+
+            // Define the div for the tooltip
+            var tooltip = d3.select("#graph-container")
+                .append("div")
+                .attr("class", "tooltip")
+                .style("opacity", 0)
+                .style("position", "absolute")
+                .style("padding", "10px")
+                .style("background", "rgba(255, 255, 255, 0.9)")
+                .style("border", "1px solid #ddd")
+                .style("border-radius", "3px")
+                .style("pointer-events", "none");
+
+            // Add circles for hover effect for the price line
+            svg.selectAll(".price-point")
+                .data(data)
+                .enter()
+                .append("circle")
+                .attr("class", "price-point")
+                .attr("fill", "steelblue")
+                .attr("stroke", "none")
+                .attr("cx", function(d) { return x(new Date(d.date)); })
+                .attr("cy", function(d) { return yLeft(d.price); })
+                .attr("r", 5)
+                .on("mouseover", function(event, d) {
+                    tooltip.transition()
+                        .duration(200)
+                        .style("opacity", .9);
+                    tooltip.html("Price: $" + d.price + " Comment: WIP")
+                        .style("left", (x(new Date(d.date)) + margin.left) + "px")
+                        .style("top", (event.pageY - 28) + "px");
+                })
+                .on("mouseout", function(d) {
+                    tooltip.transition()
+                        .duration(500)
+                        .style("opacity", 0);
+                });
         }
     };
 })();

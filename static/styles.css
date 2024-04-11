@@ -48,6 +48,10 @@ tbody tr:nth-child(even) {
     background-color: #fff; /* White for even rows */
 }
 
+table, th, td {
+    border: 1px solid #ccc; /* Light gray border */
+}
+
 /* Cell padding */
 td {
     padding: 8px;
