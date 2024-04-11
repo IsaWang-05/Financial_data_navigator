@@ -12,10 +12,11 @@ $(document).ready(function() {
                 processData: false,
                 contentType: false,
                 success: function(data) {
-                    $('#uploadResult').text(data.message); // Assuming the server sends back a JSON with 'message'
+                    $('#uploadResult').text(data.message);
                 },
                 error: function() {
                     $('#uploadResult').text('Failed to upload file.');
+                    location.reload();
                 }
             });
         } else {
