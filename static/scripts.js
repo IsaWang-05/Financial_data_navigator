@@ -1,12 +1,12 @@
 $(document).on('click', '.view-details', function(e){
     e.preventDefault();
-    var rowId = $(this).data('id');
+    var symbol = $(this).data('symbol');
 
     // Clear the content and hide the modal
     $('#dataModal .modal-body').empty();
     $('#dataModal').modal('hide');
 
-    console.log("Click event triggered for .view-details with rowId: ", rowId);
+    console.log("Click event triggered for .view-details with symbol: ", symbol);
 
     console.log("Starting AJAX request to build modal content.");
 
@@ -16,7 +16,7 @@ $(document).on('click', '.view-details', function(e){
         url: '/details',
         method: 'POST',
         contentType: 'application/json',
-        data: JSON.stringify({ row_id: rowId }),
+        data: JSON.stringify({ Symbol: symbol }),
         success: function(response){
             console.log("AJAX request successful. Response received: ", response);
 

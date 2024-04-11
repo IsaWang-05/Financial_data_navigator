@@ -1,43 +1,20 @@
 from flask import Flask, render_template, request, jsonify
-import pandas as pd
+from services.excel_connection_svc import get_all_data, ExcelUploader  # Import ExcelUploader
+from services.filter_svc import DataFilter
 
 class ExcelReader:
-    def __init__(self, filename):
-        self.filename = filename
+    def __init__(self):
+        self.data = get_all_data()
 
-    def read(self, Issuer=None, Symbol=None, Deal_team_contact=None, filter_date=None):
-        data = pd.read_excel(self.filename, engine='openpyxl')
-        data['Date'] = pd.to_datetime(data['Date'])
-        
-        if Issuer:
-            data = data[data['Issuer'].str.contains(Issuer, case=False, na=False)]
-        if Symbol:
-            data = data[data['Symbol'].str.contains(Symbol, case=False, na=False)]
-        if Deal_team_contact:
-            data = data[data['Deal_team_contact'].str.contains(Deal_team_contact, case=False, na=False)]
-        if filter_date:
-            filter_date = pd.to_datetime(filter_date)
-            data = data[data['Date'] <= pd.to_datetime(filter_date)]
-
-        # show only the newest record for each symbol
+    def read(self, Issuer=None, Symbol=None, filter_date=None):
+        data = DataFilter.filter_data(self.data.copy(), Issuer, Symbol, filter_date)
+        data['Details'] = data.apply(lambda row: f"<a href='#' class='view-details' data-symbol='{row['Symbol']}'>View Details</a>", axis=1)
         data = data.sort_values('Date', ascending=False).drop_duplicates('Symbol')
-
-        data['Details'] = data.apply(lambda row: f"<a href='#' class='view-details' data-id='{row.name}'>View Details</a>", axis=1)
         return data.to_html(index=False, escape=False)
 
     def read_hist(self, Symbol, filter_date=None):
-        data = pd.read_excel(self.filename, engine='openpyxl')
-        data = data[data['Symbol'] == Symbol]
-        data['Date'] = pd.to_datetime(data['Date'])
-        if filter_date:
-            filter_date = pd.to_datetime(filter_date)
-            data = data[data['Date'] <= pd.to_datetime(filter_date)]
-
-        # sort all records by date (earliest to latest)
-        data = data.sort_values('Date', ascending=True)
-
+        data = DataFilter.filter_for_details(self.data.copy(), Symbol, filter_date)
         return data.to_html(index=False, escape=False)
-
 
 class ExcelNavigatorApp:
     def __init__(self, excel_reader):
@@ -48,27 +25,36 @@ class ExcelNavigatorApp:
         def index():
             Issuer = request.args.get('Issuer')
             Symbol = request.args.get('Symbol')
-            Deal_team_contact = request.args.get('Deal_team_contact')
             filter_date = request.args.get('filter_date')
-
-            table_html = self.excel_reader.read(Issuer, Symbol, Deal_team_contact, filter_date)
+            table_html = self.excel_reader.read(Issuer, Symbol, filter_date)
             return render_template('index.html', table_html=table_html)
 
         @self.app.route('/details', methods=['POST'])
         def get_details_by_symbol():
             data = request.get_json()
-            row_id = data['row_id']
-
-            full_data = pd.read_excel(excel_reader.filename, engine='openpyxl')
-            symbol = full_data.iloc[row_id]['Symbol']
-
-            filtered_html_data = excel_reader.read_hist(Symbol=symbol)
-
+            symbol = data.get('Symbol')
+            symbol_data = self.excel_reader.data[self.excel_reader.data['Symbol'] == symbol]
+            symbol = symbol_data.iloc[0]['Symbol'] if not symbol_data.empty else None
+            filtered_html_data = self.excel_reader.read_hist(Symbol=symbol) if symbol else "No data found."
             return jsonify(filtered_html_data)
 
+        @self.app.route('/upload', methods=['POST'])
+        def upload_file():
+            if 'file' not in request.files:
+                return jsonify({'error': 'No file part'}), 400
+            file = request.files['file']
+            if file.filename == '':
+                return jsonify({'error': 'No selected file'}), 400
+
+            uploader = ExcelUploader()
+            try:
+                results = uploader.upload_and_update(file)
+                message = f"Upload successful, wrote {results['total_rows']} rows of data, of which {results['rows_overwritten']} rows are overwritten."
+                return jsonify({'message': message}), 200
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    filepath = './data/starter_db.xlsx'
-    excel_reader = ExcelReader(filepath)
+    excel_reader = ExcelReader()
     excel_navigator_app = ExcelNavigatorApp(excel_reader)
     excel_navigator_app.app.run(debug=True)
