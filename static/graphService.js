@@ -124,6 +124,7 @@ const GraphService = (function() {
                 d3.select(this).selectAll('circle')
                     .transition()
                     .duration(200)
+                    .attr("fill", d3.rgb("yellow").darker(0.1))
                     .attr('r', 8); // Make the radius of the circle larger for highlight
 
                 // Set the tooltip for shared date
