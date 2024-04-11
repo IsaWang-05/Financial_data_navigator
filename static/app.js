@@ -11,18 +11,23 @@ $(document).ready(function() {
 
             // Process the response to extract the necessary data for the graph
             const $html = $(response);
-            var dates = [], prices = [];
+            var dates = [], prices = [], unobservableValues = [];
             $html.find('tbody tr').each(function() {
                 var $tds = $(this).find('td');
-                // The indices here are assumed; replace 7 and 4 with the correct indices for your date and price data
                 dates.push($tds.eq(7).text());
                 prices.push(parseFloat($tds.eq(4).text()));
+                unobservableValues.push(parseFloat($tds.eq(6).text())); 
             });
+
+            console.log('Dates array:', dates);
+            console.log('Prices array:', prices);
+            console.log('Unobservable Values array:', unobservableValues);
 
             var graphData = dates.map(function(date, index) {
                 return {
-                    date: new Date(date), // Convert string date to Date object
-                    price: prices[index]  // Ensure price is a number
+                    date: new Date(date), 
+                    price: prices[index], 
+                    unobservable_value: unobservableValues[index] 
                 };
             });
 

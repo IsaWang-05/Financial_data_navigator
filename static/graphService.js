@@ -1,11 +1,13 @@
 const GraphService = (function() {
     return {
         renderLineGraph: function(data) {
+            console.log("Data properties:", Object.keys(data[0]));
+
             // Clear the container before appending a new SVG
             d3.select("#graph-container").selectAll("*").remove();
 
-            var margin = {top: 10, right: 30, bottom: 30, left: 60},
-                width = 460 - margin.left - margin.right,
+            var margin = {top: 40, right: 60, bottom: 30, left: 60}, 
+                width = 760 - margin.left - margin.right,
                 height = 400 - margin.top - margin.bottom;
 
             var svg = d3.select("#graph-container")
@@ -15,6 +17,7 @@ const GraphService = (function() {
               .append("g")
                 .attr("transform", `translate(${margin.left},${margin.top})`);
 
+            // x-axis scale
             var x = d3.scaleTime()
               .domain(d3.extent(data, function(d) { return new Date(d.date); }))
               .range([0, width]);
@@ -22,22 +25,58 @@ const GraphService = (function() {
               .attr("transform", `translate(0,${height})`)
               .call(d3.axisBottom(x));
 
-            var y = d3.scaleLinear()
+            // Left y-axis scale
+            var yLeft = d3.scaleLinear()
               .domain([0, d3.max(data, function(d) { return +d.price; })])
               .range([height, 0]);
-            svg.append("g")
-              .call(d3.axisLeft(y));
+            var yAxisLeft = svg.append("g")
+              .call(d3.axisLeft(yLeft));
 
-            var line = d3.line()
+            // Left y-axis label on top
+            svg.append("text")
+              .attr("transform", `translate(${-margin.left / 2}, ${-10})`) // Positioning label on top
+              .style("text-anchor", "middle")
+              .text("Price ($)");
+
+            // Right y-axis scale
+            var yRight = d3.scaleLinear()
+              .domain([0, d3.max(data, function(d) { return +d.unobservable_value; })])
+              .range([height, 0]);
+            var yAxisRight = svg.append("g")
+              .attr("transform", `translate(${width}, 0)`)
+              .call(d3.axisRight(yRight));
+
+            // Right y-axis label on top
+            svg.append("text")
+              .attr("transform", `translate(${width + margin.right - 20}, ${-10})`)
+              .style("text-anchor", "end")
+              .text("Unobservable Value");
+
+            // Line for price
+            var priceLine = d3.line()
                 .x(function(d) { return x(new Date(d.date)); })
-                .y(function(d) { return y(d.price); });
+                .y(function(d) { return yLeft(d.price); });
 
+            // Line for unobservable value
+            var unobservableValueLine = d3.line()
+                .x(function(d) { return x(new Date(d.date)); })
+                .y(function(d) { return yRight(d.unobservable_value); });
+
+            // Append price line to svg
             svg.append("path")
                 .datum(data)
                 .attr("fill", "none")
                 .attr("stroke", "steelblue")
                 .attr("stroke-width", 1.5)
-                .attr("d", line);
+                .attr("d", priceLine);
+
+            // Append unobservable value line to svg
+            svg.append("path")
+                .datum(data)
+                .attr("fill", "none")
+                .attr("stroke", "red") 
+                .attr("stroke-width", 1.5)
+                .attr("d", unobservableValueLine);
         }
     };
 })();
