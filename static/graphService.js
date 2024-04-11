@@ -91,30 +91,62 @@ const GraphService = (function() {
                 .style("border-radius", "3px")
                 .style("pointer-events", "none");
 
-            // Add circles for hover effect for the price line
-            svg.selectAll(".price-point")
+            // Define a class for all points for easier selection
+            var allPoints = svg.selectAll(".data-point")
                 .data(data)
                 .enter()
-                .append("circle")
-                .attr("class", "price-point")
-                .attr("fill", "steelblue")
-                .attr("stroke", "none")
-                .attr("cx", function(d) { return x(new Date(d.date)); })
-                .attr("cy", function(d) { return yLeft(d.price); })
-                .attr("r", 5)
-                .on("mouseover", function(event, d) {
-                    tooltip.transition()
-                        .duration(200)
-                        .style("opacity", .9);
-                    tooltip.html("Price: $" + d.price + " Comment: WIP")
-                        .style("left", (x(new Date(d.date)) + margin.left) + "px")
-                        .style("top", (event.pageY - 28) + "px");
-                })
-                .on("mouseout", function(d) {
-                    tooltip.transition()
-                        .duration(500)
-                        .style("opacity", 0);
+                .append("g")
+                .attr("class", "data-point")
+                .each(function(d) {
+                    var group = d3.select(this);
+                    // Append price point
+                    group.append("circle")
+                        .attr("class", "price-point")
+                        .attr("fill", d3.rgb("steelblue").darker(1))
+                        .attr("stroke", "none")
+                        .attr("cx", function(d) { return x(new Date(d.date)); })
+                        .attr("cy", function(d) { return yLeft(d.price); })
+                        .attr("r", 5);
+
+                    // Append unobservable value point
+                    group.append("circle")
+                        .attr("class", "unobservable-point")
+                        .attr("fill", d3.rgb("red").darker(1))
+                        .attr("stroke", "none")
+                        .attr("cx", function(d) { return x(new Date(d.date)); })
+                        .attr("cy", function(d) { return yRight(d.unobservable_value); })
+                        .attr("r", 5);
                 });
+
+            // Mouseover to highlight and show shared tooltip
+            allPoints.on("mouseover", function(event, d) {
+                // Highlight this point
+                d3.select(this).selectAll('circle')
+                    .transition()
+                    .duration(200)
+                    .attr('r', 8); // Make the radius of the circle larger for highlight
+
+                // Set the tooltip for shared date
+                tooltip.transition()
+                    .duration(200)
+                    .style("opacity", .9);
+                tooltip.html("Date: " + d.date.toLocaleDateString() + "<br>Price: $" + d.price + "<br>Unobservable Value: " + d.unobservable_value + "<br>Comment: WIP")
+                    .style("left", (event.pageX) + "px")
+                    .style("top", (event.pageY - 28) + "px");
+            })
+            .on("mouseout", function(d) {
+                // Remove highlight
+                d3.select(this).selectAll('circle')
+                    .transition()
+                    .duration(500)
+                    .attr('r', 5); // Reset the radius
+
+                tooltip.transition()
+                    .duration(500)
+                    .style("opacity", 0);
+            });
+
+
         }
     };
 })();
