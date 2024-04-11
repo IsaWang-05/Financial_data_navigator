@@ -49,7 +49,7 @@ class ExcelNavigatorApp:
             uploader = ExcelUploader()
             try:
                 results = uploader.upload_and_update(file)
-                message = f"Upload successful, wrote {results['total_rows']} rows of data, of which {results['rows_overwritten']} rows are overwritten."
+                message = f"Upload successful, {results['rows_overwritten']} overwritten, {results['rows_created']} created."
                 return jsonify({'message': message}), 200
             except Exception as e:
                 return jsonify({'error': str(e)}), 500

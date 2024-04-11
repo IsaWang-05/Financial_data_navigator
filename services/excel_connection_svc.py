@@ -71,13 +71,13 @@ class ExcelUploader:
             subset=['Symbol', 'Date'], keep='last')
 
         # Count stats for feedback
-        total_rows_written = new_data_df.shape[0]
-        rows_overwritten = total_rows_written - (combined_df.shape[0] - historical_df.shape[0])
+        rows_created = combined_df.shape[0] - historical_df.shape[0]
+        rows_overwritten = new_data_df.shape[0] - (combined_df.shape[0] - historical_df.shape[0])
 
         # Write back to the Excel file
         combined_df.to_excel(self.historical_data_path, index=False)
 
-        return {"total_rows": total_rows_written, "rows_overwritten": rows_overwritten}
+        return {"rows_created": rows_created, "rows_overwritten": rows_overwritten}
 
 def get_all_data():
     contact_processor = ContactDataProcessor(CONTACT_PATH)

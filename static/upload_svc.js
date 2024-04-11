@@ -1,24 +1,25 @@
-document.addEventListener('DOMContentLoaded', function () {
-    document.getElementById('uploadForm').addEventListener('submit', function(event) {
-        event.preventDefault();  // Prevent the default form submission behavior
+$(document).ready(function() {
+    $('#uploadBtn').on('click', function() {
+        var fileData = $('#fileInput').prop('files')[0];
+        if (fileData) {
+            var formData = new FormData();
+            formData.append('file', fileData);
 
-        const formData = new FormData();
-        formData.append('file', document.querySelector('[name=file]').files[0]);
-
-        fetch('/upload', {
-            method: 'POST',
-            body: formData,
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.error) {
-                document.getElementById('uploadMessage').innerText = 'Error: ' + data.error;
-            } else {
-                document.getElementById('uploadMessage').innerText = data.message;
-            }
-        })
-        .catch(error => {
-            document.getElementById('uploadMessage').innerText = 'Failed to upload the file. Please try again.';
-        });
+            $.ajax({
+                url: '/upload', // Adjust this URL to your actual upload endpoint
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(data) {
+                    $('#uploadResult').text(data.message); // Assuming the server sends back a JSON with 'message'
+                },
+                error: function() {
+                    $('#uploadResult').text('Failed to upload file.');
+                }
+            });
+        } else {
+            $('#uploadResult').text('Please select a file.');
+        }
     });
 });
