@@ -19,7 +19,6 @@
 </head>
 <body>
     <header class="text-center py-4">
-        <h1>Excel Data Navigator</h1>
     </header>
     
     <!-- Form for Filtering Data -->
@@ -32,14 +31,16 @@
         
         <label for="Symbol">Symbol:</label>
         <input type="text" id="Symbol" name="Symbol">
-
-        <button type="submit">Filter</button>
+        
+        <div class="btn-group" role="group" aria-label="Form buttons">
+            <!-- Updated Filter Button -->
+            <button type="submit" class="btn btn-primary">Filter</button>
+        </div>
         <!-- Upload Button that Triggers Modal -->
         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#uploadModal">
             Upload Data
         </button>
     </form>
-
     
 
     <!-- Modal for File Upload and Result -->

@@ -1,3 +1,4 @@
+/* Important Settings */
 /* Ensure the modal is large enough */
 #dataModal .modal-dialog {
     max-width: 90%;
@@ -16,3 +17,82 @@
 .table-responsive {
     overflow-x: auto;
 }
+
+
+
+
+
+/* Styling */
+/* General Table Styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: Arial, sans-serif;
+}
+
+/* Header Styling */
+thead th {
+    background-color: #d3d3d3; /* Darker grey background */
+    color: #333;
+    text-align: left;
+    padding: 8px;
+    border-bottom: 1px solid #ccc;
+}
+
+/* Alternating row colors for tbody rows */
+tbody tr:nth-child(odd) {
+    background-color: #e6e6e6; /* Light grey for odd rows */
+}
+
+tbody tr:nth-child(even) {
+    background-color: #fff; /* White for even rows */
+}
+
+/* Cell padding */
+td {
+    padding: 8px;
+    text-align: left;
+}
+
+/* Style for table data */
+td {
+    color: #666;
+    font-size: 0.9em;
+}
+
+/* Style for the filter form to align horizontally */
+form {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background-color: #e9ecef;
+    margin-bottom: 1rem;
+}
+
+/* Style each form group to align items inline */
+.form-group {
+    display: flex;
+    align-items: center;
+    margin-right: 1rem;
+}
+
+/* Style the form labels */
+.form-group label {
+    margin-right: 0.5rem;
+}
+
+/* Match the buttons */
+button, .btn {
+    background-color: #007bff; /* Bootstrap primary color */
+    color: white;
+    border: none;
+    padding: 0.375rem 0.75rem;
+    border-radius: 0.25rem;
+    cursor: pointer;
+}
+
+button:hover, .btn:hover {
+    background-color: #0056b3; /* Darken the button on hover */
+}
+
