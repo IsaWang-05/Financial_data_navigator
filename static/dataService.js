@@ -5,6 +5,7 @@ const DataService = (function() {
                 cache: false,
                 url: '/details',
                 method: 'POST',
+                cache: false,
                 contentType: 'application/json',
                 data: JSON.stringify({ Symbol: symbol }),
                 success: successCallback,

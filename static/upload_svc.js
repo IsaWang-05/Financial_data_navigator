@@ -11,6 +11,7 @@ $(document).ready(function() {
                 data: formData,
                 processData: false,
                 contentType: false,
+                cache: false,
                 success: function(data) {
                     $('#uploadResult').text(data.message);
                 },
