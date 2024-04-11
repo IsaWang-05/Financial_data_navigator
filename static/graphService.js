@@ -124,28 +124,43 @@ const GraphService = (function() {
                 d3.select(this).selectAll('circle')
                     .transition()
                     .duration(200)
-                    .attr("fill", d3.rgb("yellow").darker(0.1))
-                    .attr('r', 8); // Make the radius of the circle larger for highlight
+                    .attr("fill", "yellow") // Apply highlight color
+                    .attr('r', 8); // Enlarge radius for highlight
 
-                // Set the tooltip for shared date
+                // Calculate position relative to the SVG
+                var xPosition = x(new Date(d.date)) + margin.left;
+                
+                // Calculate the average y position of the two points
+                var yPrice = yLeft(d.price);
+                var yValue = yRight(d.unobservable_value);
+                var yPosition = (yPrice + yValue) / 2 + margin.top;
+
+                // Get the position of the SVG element on the page
+                var svgTop = document.getElementById("graph-container").getBoundingClientRect().top + window.scrollY;
+                var svgLeft = document.getElementById("graph-container").getBoundingClientRect().left + window.scrollX;
+
                 tooltip.transition()
                     .duration(200)
                     .style("opacity", .9);
                 tooltip.html("Date: " + d.date.toLocaleDateString() + "<br>Price: $" + d.price + "<br>Unobservable Value: " + d.unobservable_value + "<br>Comment: WIP")
-                    .style("left", (event.pageX) + "px")
-                    .style("top", (event.pageY - 28) + "px");
+                    .style("left", (svgLeft + xPosition - 50) + "px") // Adjust for the width of the tooltip if necessary
+                    .style("top", (svgTop + yPosition - 30) + "px"); // Position in the middle of the y values
             })
             .on("mouseout", function(d) {
                 // Remove highlight
                 d3.select(this).selectAll('circle')
                     .transition()
                     .duration(500)
-                    .attr('r', 5); // Reset the radius
+                    .attr("fill", function(d) { // Reset fill color based on data point type
+                        return this.classList.contains('price-point') ? d3.rgb("steelblue").darker(1) : d3.rgb("red").darker(1);
+                    })
+                    .attr('r', 5); // Reset radius to normal size
 
                 tooltip.transition()
                     .duration(500)
                     .style("opacity", 0);
             });
+
 
 
         }
