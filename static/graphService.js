@@ -124,7 +124,7 @@ const GraphService = (function() {
                 d3.select(this).selectAll('circle')
                     .transition()
                     .duration(200)
-                    .attr("fill", "yellow") // Apply highlight color
+                    .attr("fill", "orange") // Apply highlight color
                     .attr('r', 8); // Enlarge radius for highlight
 
                 // Calculate position relative to the SVG
